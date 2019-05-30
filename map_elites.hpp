@@ -85,6 +85,27 @@ namespace sferes {
         BOOST_FOREACH(boost::shared_ptr<Phen>&indiv, this->_pop)
         _add_to_archive(indiv, indiv);
       }
+      
+      // for resuming
+      void _set_pop(const std::vector<boost::shared_ptr<Phen> >& pop) {
+        assert(!pop.empty());
+    
+        for (size_t h = 0; h < pop.size(); ++h)
+        {
+            pop[h]->develop();
+            pop[h]->fit().eval(*pop[h]);  // we need to evaluate the individuals to get the descriptor values
+
+            point_t p = get_point(pop[h]);
+
+            behav_index_t behav_pos;
+            for(size_t i = 0; i < Params::ea::behav_shape_size(); ++i) {
+                behav_pos[i] = round(p[i] * behav_shape[i]);
+                behav_pos[i] = std::min(behav_pos[i], behav_shape[i] - 1);
+                assert(behav_pos[i] < behav_shape[i]);
+            }
+            _array(behav_pos) = pop[h];
+        }
+      }
 
       void epoch() {
         this->_pop.clear();
