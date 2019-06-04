@@ -37,17 +37,17 @@
 #define FIT_MAP(Name) SFERES_FITNESS(Name, sferes::fit::FitMap)
 
 namespace sferes {
-    namespace fit {
-        SFERES_FITNESS(FitMap, sferes::fit::Fitness)
-        {
-        public:
-            FitMap() : _desc(Params::ea::behav_dim) {}
-            const std::vector<float>& desc() const
-            {
-                return _desc;
-            }
+namespace fit {
+SFERES_FITNESS(FitMap, sferes::fit::Fitness)
+{
+    public:
+    FitMap() : _desc(Params::ea::behav_dim) {}
+    const std::vector<float>& desc() const
+    {
+        return _desc;
+    }
 
-            /*void set_desc(float x1, float x2)
+    /*void set_desc(float x1, float x2)
       {
         assert(x1 >= 0);
         assert(x2 >= 0);
@@ -58,17 +58,24 @@ namespace sferes {
         _desc[1] = x2;
       }*/
 
-            void set_desc(std::vector<float> & x)
-            { ////void set_desc(boost::array<float,Params::ea::behav_dim> x)
-                assert(x.size() == Params::ea::behav_dim);
-                for (size_t i = 0; i < x.size(); ++i)
-                    assert(x[i] >= 0.0 && x[i] <= 1.0);
+    void set_desc(std::vector<float> & x)
+    { ////void set_desc(boost::array<float,Params::ea::behav_dim> x)
+        assert(x.size() == Params::ea::behav_dim);
+        for (size_t i = 0; i < x.size(); ++i)
+            assert(x[i] >= 0.0 && x[i] <= 1.0);
 
-                _desc = x;
-            }
-
-        protected:
-            std::vector<float> _desc;
-        };
+        _desc = x;
     }
+
+    // override the function so that we can write behaviour descriptor values along with the fitness value
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & BOOST_SERIALIZATION_NVP(this->_value);
+        ar & BOOST_SERIALIZATION_NVP(_desc);
+    }
+
+    protected:
+    std::vector<float> _desc;
+};
+}
 }
